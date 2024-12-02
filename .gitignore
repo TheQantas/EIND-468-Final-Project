@@ -2,3 +2,5 @@
 .RData
 .Rhistory
 *.Rproj
+train/__pycache__
+presentation.pptx

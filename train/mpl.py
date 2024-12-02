@@ -1,23 +1,18 @@
-import os
-os.environ["PYTHONIOENCODING"] = "utf-8"
-
 import numpy as np
-import sys
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import Dense # type: ignore
 
-print(sys.version)
+def mpl_build(X_train, X_test, y_train) -> tuple[Sequential, np.ndarray, np.ndarray]:
+    model = Sequential([
+        Dense(64, activation='relu', input_shape=(16,)),
+        Dense(32, activation='relu'),
+        Dense(1)
+    ])
 
-# Example data
-X = np.random.rand(2000, 16)  # Shape (2000, 16)
-y = np.random.rand(2000)      # Shape (2000,)
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.fit(X_train, y_train, validation_split=0.2, epochs=50, batch_size=32)
 
-# MLP Model
-model = Sequential([
-    Dense(64, activation='relu', input_shape=(16,)),
-    Dense(32, activation='relu'),
-    Dense(1)
-])
+    predict_train = model.predict(X_train, verbose=0)
+    predict_test = model.predict(X_test, verbose=0)
 
-model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-model.fit(X, y, validation_split=0.2, epochs=50, batch_size=32)
+    return (model, predict_train, predict_test)

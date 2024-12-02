@@ -1,16 +1,24 @@
 import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-X = np.random.rand(2000, 16)  # Shape (2000, 16)
-y = np.random.rand(2000)      # Shape (2000,)
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import Dense # type: ignore
+from tensorflow.keras.layers import LSTM # type: ignore
 
-from tensorflow.keras.layers import LSTM
+from train_test_split import rnn_reshape
 
-# LSTM Model
-model = Sequential([
-    LSTM(64, activation='relu', input_shape=(16, 1)),
-    Dense(1)
-])
+def rstn_build(X_train, X_test, y_train) -> tuple[Sequential, np.ndarray, np.ndarray]:
+    X_train_rnn = rnn_reshape(X_train)
+    X_test_rnn = rnn_reshape(X_test)
 
-model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-model.fit(X_rnn, y, validation_split=0.2, epochs=50, batch_size=32)
+    model = Sequential([
+        LSTM(64, activation='relu', input_shape=(16, 1)),
+        Dense(1)
+    ])
+
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.fit(X_train_rnn, y_train, validation_split=0.2, epochs=50, batch_size=32)
+
+    predict_train = model.predict(X_train_rnn, verbose=0)
+    predict_test = model.predict(X_test_rnn, verbose=0)
+
+    return (model, predict_train, predict_test)
+
