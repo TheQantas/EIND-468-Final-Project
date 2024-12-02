@@ -5,7 +5,7 @@ from tensorflow.keras.layers import LSTM # type: ignore
 
 from train_test_split import rnn_reshape
 
-def rstn_build(X_train, X_test, y_train) -> tuple[Sequential, np.ndarray, np.ndarray]:
+def lstm_build(X_train, X_test, y_train) -> tuple[Sequential, np.ndarray, np.ndarray]:
     X_train_rnn = rnn_reshape(X_train)
     X_test_rnn = rnn_reshape(X_test)
 

@@ -102,7 +102,7 @@ forecast_drives = drives |> filter(season >= 2023)
 drives = drives |> filter(season <= 2023)
 
 save(drives, file="data/drives.RData")
-write.csv(as.data.frame(forecast_drives |> select(-away_prev_16, -home_prev_16)), "forecast_drives.csv", row.names=FALSE)
+write.csv(as.data.frame(forecast_drives |> select(-away_prev_16, -home_prev_16)), "forecast/drives.csv", row.names=FALSE)
 
 ### Build time series(es) for training #########################################
 
