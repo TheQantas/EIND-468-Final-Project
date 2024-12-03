@@ -36,12 +36,15 @@ if __name__ == "__main__":
     assert(side == "off" or side == "def")
 
     X_train, X_test, y_train, y_test = split_data(score == "td", side == "off", 0.8)
+    X_train, X_test, y_train, y_test = split_data(score == "td", side == "off", 0.8)
 
     _, predict_train, predict_test = evaluate(model_name, X_train, X_test, y_train)
     
     train_mad = np.mean(np.abs(predict_train - y_train))
     test_mad = np.mean(np.abs(predict_test - y_test))
 
+    print(f"Train MAE of {model_name} of \033[33m{train_mad:.4f}\033[0m")
+    print(f"Test MAE of {model_name} of \033[32m{test_mad:.4f}\033[0m")
     print(f"Train MAE of {model_name} of \033[33m{train_mad:.4f}\033[0m")
     print(f"Test MAE of {model_name} of \033[32m{test_mad:.4f}\033[0m")
 
