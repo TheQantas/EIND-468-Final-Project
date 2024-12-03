@@ -2,7 +2,7 @@ import numpy as np
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Dense, SimpleRNN # type: ignore
 
-from train_test_split import rnn_reshape
+from resources import rnn_reshape
 
 def rnn_build(X_train, X_test, y_train) -> tuple[Sequential, np.ndarray, np.ndarray]:
     model = Sequential([

@@ -34,6 +34,9 @@ drives = all_games |> group_by(game_id, drive) |> summarize(
     away_score = max(total_away_score),
     home_score = max(total_home_score),
     
+    home_line = mean(spread_line),
+    over_under = mean(total_line),
+    
     yards_gained = sum(yards_gained, na.rm=TRUE)
 ) |> summarize(
     away_team = first(away_team),
@@ -55,7 +58,10 @@ drives = all_games |> group_by(game_id, drive) |> summarize(
     home_field_goals = sum(offense == home_team & drive_result == 'Field goal', na.rm=TRUE),
     
     away_punts = away_drives - away_touchdowns - away_field_goals,
-    home_punts = home_drives - home_touchdowns - home_field_goals
+    home_punts = home_drives - home_touchdowns - home_field_goals,
+    
+    home_line = mean(home_line),
+    over_under = mean(over_under)
 )
 
 
@@ -102,7 +108,7 @@ forecast_drives = drives |> filter(season >= 2023)
 drives = drives |> filter(season <= 2023)
 
 save(drives, file="data/drives.RData")
-write.csv(as.data.frame(forecast_drives |> select(-away_prev_16, -home_prev_16)), "forecast_drives.csv", row.names=FALSE)
+write.csv(as.data.frame(forecast_drives |> filter(season==2024) |> select(-away_prev_16, -home_prev_16)), "forecast/drives_2024.csv", row.names=FALSE)
 
 ### Build time series(es) for training #########################################
 
@@ -120,8 +126,6 @@ for (i in start_2021:nrow(drives)) {
     away_prev = drives$away_prev_16[i]
     home_prev = drives$home_prev_16[i]
     row = i - start_2021 + 1
-    
-    away_frame = drives[away_prev[[1]], ]
     
     for (col in 1:16) {
         away_index = away_prev[[1]][col]
@@ -226,7 +230,7 @@ write.csv(
 
 ### Build time series(es) for forecasting ######################################
 
-start_2024 = which(forecast_drives$season==2024)[1]
+start_2024 = which(forecast_drives$season == 2024)[1]
 nr2 = (nrow(forecast_drives) - start_2024 + 1) * 2
 offset = nrow(drives |> filter(season < 2023))
 
@@ -242,6 +246,7 @@ for (i in start_2024:nrow(forecast_drives)) {
     
     away_prev = forecast_drives$away_prev_16[i]
     home_prev = forecast_drives$home_prev_16[i]
+    
     row = i - start_2024 + 1
     
     touchdown_perc_off2[row*2-1, 1] = paste0(game_id, "-", away_team)
@@ -257,9 +262,6 @@ for (i in start_2024:nrow(forecast_drives)) {
     for (col in 2:17) {
         away_index = away_prev[[1]][col-1] - offset + 1
         home_index = home_prev[[1]][col-1] - offset + 1
-        
-        print(away_index)
-        print(game_id)
         
         away_off_td_column = ifelse(
             drives[away_index, "away_team"] == away_team,
@@ -303,6 +305,12 @@ for (i in start_2024:nrow(forecast_drives)) {
             "away_fg_perc"
         )
         
+        if (is.na(forecast_drives[away_index, away_off_td_column][[1]])) {
+            print(away_index)
+            print(away_off_td_column)
+            stop()
+        }
+        
         touchdown_perc_off2[row*2-1, col] = forecast_drives[away_index, away_off_td_column][[1]]
         touchdown_perc_off2[row*2, col] = forecast_drives[home_index, home_off_td_column][[1]]
         
@@ -317,6 +325,8 @@ for (i in start_2024:nrow(forecast_drives)) {
     }
     
 }
+
+stopifnot(!any(is.na(touchdown_perc_off2)))
 
 write.csv(
     as.data.frame(touchdown_perc_off2),
