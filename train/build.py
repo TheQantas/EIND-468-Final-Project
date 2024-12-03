@@ -45,8 +45,6 @@ if __name__ == "__main__":
 
     print(f"Train MAE of {model_name} of \033[33m{train_mad:.4f}\033[0m")
     print(f"Test MAE of {model_name} of \033[32m{test_mad:.4f}\033[0m")
-    print(f"Train MAE of {model_name} of \033[33m{train_mad:.4f}\033[0m")
-    print(f"Test MAE of {model_name} of \033[32m{test_mad:.4f}\033[0m")
 
 
 

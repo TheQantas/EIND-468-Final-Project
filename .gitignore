@@ -3,4 +3,5 @@
 .Rhistory
 *.Rproj
 */__pycache__
+paper.docx
 presentation.pptx
